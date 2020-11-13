@@ -286,10 +286,9 @@ export default class ClientRouter extends AbstractRouter {
       return;
     }
 
-    let targetAttribute = anchorElement.getAttribute('target');
     let anchorHref = anchorElement.href;
     let isDefinedTargetHref = anchorHref !== undefined && anchorHref !== null;
-    let isSetTarget = targetAttribute !== null || targetAttribute === '_self';
+    let isSetTarget = anchorElement.getAttribute('target') !== null;
     let isLeftButton = event.button === MOUSE_LEFT_BUTTON;
     let isCtrlPlusLeftButton = event.ctrlKey && isLeftButton;
     let isCMDPlusLeftButton = event.metaKey && isLeftButton;
