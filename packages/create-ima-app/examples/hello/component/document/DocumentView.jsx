@@ -82,10 +82,11 @@ export default class DocumentView extends AbstractDocumentView {
 					`
             }}
           />
-          <div
-            id="scripts"
-            dangerouslySetInnerHTML={{ __html: this.getAsyncScripts() }}
-          />
+          <script src="/static/js/main.js"></script>
+          {/*<div*/}
+          {/*  id="scripts"*/}
+          {/*  dangerouslySetInnerHTML={{ __html: this.getAsyncScripts() }}*/}
+          {/*/>*/}
         </body>
       </html>
     );

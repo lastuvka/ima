@@ -1,8 +1,5 @@
 'use strict';
 
-require('@ima/core/polyfill/imaLoader.js');
-require('@ima/core/polyfill/imaRunner.js');
-
 // Node
 let cluster = require('cluster');
 let path = require('path');
@@ -10,20 +7,22 @@ let os = require('os');
 global.appRoot = path.resolve(__dirname);
 
 // IMA server
-let imaServer = require('@ima/server');
-
-let clientApp = imaServer.clientApp;
+const environmentConfig = require('../app/environment.js');
+let imaServer = require('@ima/server')(environmentConfig);
+//call mainJs after we have globals $IMA set
+const mainJs = require('../app/main.js');
+let clientApp = imaServer.clientApp(mainJs);
 let urlParser = imaServer.urlParser;
 let environment = imaServer.environment;
 let logger = imaServer.logger;
 let cache = imaServer.cache;
 
 // Middlewares
-let favicon = require('serve-favicon');
+//let favicon = require('serve-favicon');
 let bodyParser = require('body-parser');
-let multer = require('multer')({
-  dest: path.resolve(__dirname) + '/static/uploads/'
-});
+// let multer = require('multer')({
+//   dest: path.resolve(__dirname) + '/static/uploads/'
+// });
 let cookieParser = require('cookie-parser');
 let methodOverride = require('method-override');
 let compression = require('compression');
@@ -120,18 +119,18 @@ function runNodeApp() {
   app
     .use(helmet())
     .use(compression())
-    .use(favicon(path.resolve(__dirname) + '/static/img/favicon.ico'))
+    //  .use(favicon(path.resolve(__dirname) + '/static/img/favicon.ico'))
     .use(
       environment.$Server.staticFolder,
       express.static(path.join(__dirname, 'static'))
     )
     .use(bodyParser.json()) // for parsing application/json
     .use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
-    .use(
-      multer.fields([
-        /*{ name: '<file input name>', maxCount: 1 }, ...*/
-      ])
-    ) // for parsing multipart/form-data
+    // .use(
+    //   multer.fields([
+    //     /*{ name: '<file input name>', maxCount: 1 }, ...*/
+    //   ])
+    // ) // for parsing multipart/form-data
     .use(cookieParser())
     .use(methodOverride())
     .use(
