@@ -1,49 +1,48 @@
 'use strict';
 
-let path = require('path');
-let applicationFolder = path.resolve('.');
+const processEnvironment = require('./lib/environment.js');
+const createLogger = require('./lib/logger.js');
+const createUrlParser = require('./lib/urlParser.js');
+const createClientApp = require('./lib/clientApp.js');
+const createCache = require('./lib/cache.js');
 
-let environmentConfig = require(path.resolve(
-  applicationFolder,
-  './build/ima/config/environment.js'
-));
-let environment = require('./lib/environment.js')(environmentConfig);
+module.exports = environmentConfig => {
+  const environment = processEnvironment(environmentConfig);
 
-global.$Debug = environment.$Debug;
-global.$IMA = global.$IMA || {};
+  global.$Debug = environment.$Debug;
+  global.$IMA = global.$IMA || {};
 
-require(path.resolve(applicationFolder, './build/ima/shim.es.js'));
-require(path.resolve(applicationFolder, './build/ima/vendor.server.js'));
+  // require(path.resolve(applicationFolder, './build/ima/shim.es.js'));
+  // require(path.resolve(applicationFolder, './build/ima/vendor.server.js'));
 
-function appFactory() {
-  delete require.cache[
-    path.resolve(applicationFolder, './build/ima/app.server.js')
-  ];
+  function appFactory() {
+    // delete require.cache[
+    //   path.resolve(applicationFolder, './build/ima/app.server.js')
+    // ];
+    //
+    // require(path.resolve(applicationFolder, './build/ima/app.server.js'))();
+  }
 
-  require(path.resolve(applicationFolder, './build/ima/app.server.js'))();
-}
+  //TODO add loader param is language
+  function languageLoader() {
+    return () => {};
+  }
 
-function languageLoader(language) {
-  return require(path.resolve(
-    applicationFolder,
-    `./build/ima/locale/${language}.js`
-  ));
-}
+  const logger = createLogger(environment);
+  const urlParser = createUrlParser(environment);
+  const clientApp = createClientApp(
+    environment,
+    logger,
+    languageLoader,
+    appFactory
+  );
+  const cache = createCache(environment);
 
-let logger = require('./lib/logger.js')(environment);
-let urlParser = require('./lib/urlParser.js')(environment);
-let clientApp = require('./lib/clientApp.js')(
-  environment,
-  logger,
-  languageLoader,
-  appFactory
-);
-let cache = require('./lib/cache.js')(environment);
-
-module.exports = {
-  environment,
-  clientApp,
-  urlParser,
-  logger,
-  cache
+  return {
+    environment,
+    clientApp,
+    urlParser,
+    logger,
+    cache
+  };
 };

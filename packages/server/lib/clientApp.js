@@ -16,7 +16,12 @@ hljs.configure({
   lineNodes: true
 });
 
-module.exports = (environment, logger, languageLoader, appFactory) => {
+module.exports = (
+  environment,
+  logger,
+  languageLoader,
+  appFactory
+) => mainJs => {
   appFactory();
 
   const spaCache = new Cache(
@@ -351,16 +356,14 @@ module.exports = (environment, logger, languageLoader, appFactory) => {
   }
 
   function _importAppMain() {
-    return $IMA.Loader.import('app/main').then(appMain => {
-      if (!instanceRecycler.isInitialized()) {
-        instanceRecycler.init(
-          appMain.ima.createImaApp,
-          environment.$Server.concurrency
-        );
-      }
+    if (!instanceRecycler.isInitialized()) {
+      instanceRecycler.init(
+        mainJs.ima.createImaApp,
+        environment.$Server.concurrency
+      );
+    }
 
-      return appMain;
-    });
+    return Promise.resolve(mainJs);
   }
 
   function errorHandler(error, req, res, app) {
@@ -461,21 +464,21 @@ module.exports = (environment, logger, languageLoader, appFactory) => {
   }
 
   function requestHandler(req, res) {
-    if (environment.$Env === 'dev') {
-      instanceRecycler.clear();
-
-      Object.keys($IMA.Loader.modules).forEach(modulePath => {
-        let module = global.$IMA.Loader.modules[modulePath];
-
-        global.$IMA.Loader.modules[modulePath] = Object.assign({}, module, {
-          instance: null,
-          dependencyOf: [],
-          dependencies: module.dependencies.slice()
-        });
-      });
-
-      appFactory();
-    }
+    // if (environment.$Env === 'dev') {
+    //   instanceRecycler.clear();
+    //
+    //   Object.keys($IMA.Loader.modules).forEach(modulePath => {
+    //     let module = global.$IMA.Loader.modules[modulePath];
+    //
+    //     global.$IMA.Loader.modules[modulePath] = Object.assign({}, module, {
+    //       instance: null,
+    //       dependencyOf: [],
+    //       dependencies: module.dependencies.slice()
+    //     });
+    //   });
+    //
+    //   appFactory();
+    // }
 
     return _importAppMain().then(appMain => {
       let app = _initApp(req, res, appMain);

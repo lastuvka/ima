@@ -2,11 +2,6 @@
 
 const { URL } = require('url');
 
-let path = require('path');
-let applicationFolder = path.resolve('.');
-
-const BUILD_JS_PATH = path.resolve(applicationFolder, './app/build.js');
-
 module.exports = environment => {
   function _getHost(req) {
     let forwardedHost = req.get('X-Forwarded-Host');
@@ -34,9 +29,7 @@ module.exports = environment => {
       rootExpression.replace('/', '/');
 
     if (languageParam) {
-      let build = require(BUILD_JS_PATH);
-
-      const langCodes = Object.keys(build.languages);
+      const langCodes = Object.values(environment.$Language);
       let languagesExpr = langCodes.join('|');
       rootReg += '(/(' + languagesExpr + '))?';
     }
