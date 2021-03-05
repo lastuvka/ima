@@ -1,4 +1,4 @@
-import vendorLinker from './vendorLinker';
+import React from 'react';
 import ns from './namespace';
 import ObjectContainer from './ObjectContainer';
 import Bootstrap from './Bootstrap';
@@ -103,7 +103,7 @@ function getNamespace() {
 }
 
 function getInitialPluginConfig() {
-  return { plugins: vendorLinker.getImaPlugins() };
+  return { plugins: [] }; //TODO from manifest plugins
 }
 
 function _getRoot() {
@@ -213,7 +213,7 @@ function reviveClientApp(initialAppConfigFunctions) {
   let root = _getRoot();
 
   //set React for ReactJS extension for browser
-  root.React = vendorLinker.get('react');
+  root.React = React;
   root.$Debug = root.$IMA.$Debug;
 
   let app = createImaApp();
@@ -226,7 +226,7 @@ function reviveClientApp(initialAppConfigFunctions) {
 }
 
 function onLoad() {
-  vendorLinker.bindToNamespace(ns);
+  //TODO call manifest plugins $registerImaPlugin
 
   if (!_isClient()) {
     return Promise.reject(null);
@@ -338,6 +338,5 @@ export {
   fire,
   listen,
   unlisten,
-  vendorLinker,
   version
 };
